@@ -38,7 +38,7 @@ func main() {
 
 	api := app.Group("/api")
 
-	api.Get("/", func(c *fiber.Ctx) error {
+	api.Get("/product", func(c *fiber.Ctx) error {
 		var products = []Product{}
 
 		result := db.Find(&products)
@@ -49,7 +49,7 @@ func main() {
 		return c.JSON(fiber.Map{"Products": products})
 	})
 
-	api.Post("/", func(c *fiber.Ctx) error {
+	api.Post("/product", func(c *fiber.Ctx) error {
 		np := new(Product)
 
 		if err := c.BodyParser(np); err != nil {
