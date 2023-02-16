@@ -18,6 +18,11 @@ type Product struct {
 	Price uint
 }
 
+type ProductCreate struct {
+	Code  string `json:"Code" form:"Code"`
+	Price uint   `json:"Price" form:"Price"`
+}
+
 func main() {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
@@ -31,13 +36,34 @@ func main() {
 
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
+	api := app.Group("/api")
+
+	api.Get("/", func(c *fiber.Ctx) error {
 		var products = []Product{}
+
 		result := db.Find(&products)
 		if result.Error != nil {
-			log.Println(result.Error)
+			return result.Error
 		}
-		return c.JSON(products)
+
+		return c.JSON(fiber.Map{"Products": products})
+	})
+
+	api.Post("/", func(c *fiber.Ctx) error {
+		np := new(Product)
+
+		if err := c.BodyParser(np); err != nil {
+			return err
+		}
+
+		p := Product{Code: np.Code, Price: np.Price}
+
+		result := db.Create(&p)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		return c.JSON(p)
 	})
 
 	log.Fatal(app.Listen(":3000"))
