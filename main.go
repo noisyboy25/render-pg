@@ -32,8 +32,6 @@ func main() {
 
 	db.AutoMigrate(&Product{})
 
-	db.Create(&Product{Code: "D42", Price: 100})
-
 	app := fiber.New()
 
 	api := app.Group("/api")
