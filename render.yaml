@@ -5,6 +5,11 @@ services:
     env: docker
     region: frankfurt # optional (defaults to oregon)
     plan: free # optional (defaults to starter)
+    envVars:
+      - key: DB_URL
+        fromDatabase:
+          name: test
+          property: connectionString
 databases:
   # db 1
   - name: test
