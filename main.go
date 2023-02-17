@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 var dsn = os.Getenv("DB_URL")
@@ -33,6 +34,7 @@ func main() {
 	db.AutoMigrate(&Product{})
 
 	app := fiber.New()
+	app.Use(logger.New())
 
 	api := app.Group("/api")
 
