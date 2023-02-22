@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - 3000:3000
+    depends_on:
+      db:
+        condition: service_started
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgres/data
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: unless-stopped
+volumes:
+  pgdata:

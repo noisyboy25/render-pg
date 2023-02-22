@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -10,8 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
-
-var dsn = os.Getenv("DB_URL")
 
 type Product struct {
 	gorm.Model
@@ -24,15 +24,30 @@ type ProductCreate struct {
 	Price uint   `json:"Price" form:"Price"`
 }
 
-func main() {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+var db *gorm.DB
+
+func init() {
+	dsn := fmt.Sprintf("host=%s user=postgres password=%s port=5432", os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PASSWORD"))
+
+	var err error
+	for i := 0; i < 5; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err != nil {
+			log.Printf("failed to connect database, reconnecting...")
+			time.Sleep(5 * time.Second)
+		} else {
+			break
+		}
+	}
 
 	if err != nil {
 		panic("failed to connect database")
 	}
 
 	db.AutoMigrate(&Product{})
+}
 
+func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 
