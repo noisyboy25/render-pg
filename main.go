@@ -27,11 +27,18 @@ type ProductCreate struct {
 var db *gorm.DB
 
 func init() {
-	dsn := fmt.Sprintf("host=%s user=postgres password=%s port=5432", os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PASSWORD"))
-
 	var err error
 	for i := 0; i < 5; i++ {
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		var db_conn_str string
+
+		db_url := os.Getenv("DB_URL")
+		if db_url != "" {
+			db_conn_str = db_url
+		} else {
+			db_conn_str = fmt.Sprintf("host=%s user=postgres password=%s port=5432", os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PASSWORD"))
+		}
+
+		db, err = gorm.Open(postgres.Open(db_conn_str), &gorm.Config{})
 		if err != nil {
 			log.Printf("failed to connect database, reconnecting...")
 			time.Sleep(5 * time.Second)
