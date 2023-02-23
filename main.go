@@ -64,8 +64,9 @@ func main() {
 	app.Use(logger.New())
 
 	api := app.Group("/api")
+	productApi := api.Group("products")
 
-	api.Get("/product", func(c *fiber.Ctx) error {
+	productApi.Get("/", func(c *fiber.Ctx) error {
 		var products = []Product{}
 
 		result := db.Find(&products)
@@ -73,10 +74,10 @@ func main() {
 			return result.Error
 		}
 
-		return c.JSON(fiber.Map{"Products": products})
+		return c.JSON(fiber.Map{"products": products})
 	})
 
-	api.Post("/product", func(c *fiber.Ctx) error {
+	productApi.Post("/", func(c *fiber.Ctx) error {
 		np := new(Product)
 
 		if err := c.BodyParser(np); err != nil {
@@ -91,6 +92,17 @@ func main() {
 		}
 
 		return c.JSON(p)
+	})
+
+	productApi.Delete("/:id", func(c *fiber.Ctx) error {
+		id := c.Params("id")
+
+		result := db.Delete(&Product{}, id)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		return c.SendStatus(fiber.StatusNoContent)
 	})
 
 	log.Fatal(app.Listen(":3000"))
