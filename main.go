@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -28,6 +29,10 @@ var db *gorm.DB
 
 func init() {
 	var err error
+	err = godotenv.Load()
+	if err != nil {
+		log.Println("failed to load .env file")
+	}
 	for i := 0; i < 5; i++ {
 		var db_conn_str string
 
@@ -35,7 +40,7 @@ func init() {
 		if db_url != "" {
 			db_conn_str = db_url
 		} else {
-			db_conn_str = fmt.Sprintf("host=%s user=postgres password=%s port=5432", os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PASSWORD"))
+			db_conn_str = fmt.Sprintf("user=postgres password=%s port=5432 dbname=postgres", os.Getenv("POSTGRES_PASSWORD"))
 		}
 
 		db, err = gorm.Open(postgres.Open(db_conn_str), &gorm.Config{})
